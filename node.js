@@ -1,49 +1,56 @@
 const express = require('express');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 1. Ensure you paste your complete Webhook URL here
-const WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1544668152410152991/QLHecycd6HmLCmmGJegdcdLNIWzNUKmN4-FfAfPhjuOu5HUil0BknWKK3iADDlcMkT_J';
+// Set your FRESH Discord Webhook URL here
+const DISCORD_WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1544669985962463252/iuBYhMm9-K_XvYFPDfAqCyphjclkajMz_LNXSQkWIwh9gmXYLbjWT00NcCg3EsKiiRZE';
 
 app.use(async (req, res, next) => {
-    // 2. Prevent triggering on browser favicon requests
+    // Ignore automatic browser requests for site icons
     if (req.url === '/favicon.ico') return next();
 
-    const clientIp = req.headers['cf-connecting-ip'] || 
-                     req.headers['x-forwarded-for']?.split(',')[0].trim() || 
-                     req.socket.remoteAddress;
+    // 1. Extract the IP address
+    let clientIp = req.headers['cf-connecting-ip'] || 
+                   req.headers['x-forwarded-for']?.split(',')[0].trim() || 
+                   req.socket.remoteAddress;
 
-    console.log(`[INFO] New request from IP: ${clientIp}`);
+    // Convert local IPv6 loopback to readable text for local testing
+    if (clientIp === '::1' || clientIp === '127.0.0.1') {
+        clientIp = '127.0.0.1 (Localhost Testing)';
+    }
 
+    console.log(`Attempting to send IP: ${clientIp}`);
+
+    // 2. Send to Discord Webhook
     try {
-        // 3. Using Node 18+ native global fetch (no external node-fetch required)
-        const response = await fetch(WEBHOOK_URL, {
+        const response = await fetch(DISCORD_WEBHOOK_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'User-Agent': 'NodeJS-IP-Logger/1.0' // Prevents Discord bot-blocking filters
+            },
             body: JSON.stringify({
-                // Note: Standard webhooks accept 'content'. If using Slack, change key to 'text'.
-                content: `New visitor logged from IP: \`${clientIp}\``
+                content: `🚨 **New Site Visitor**\n**IP Address:** \`${clientIp}\``
             })
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[ERROR] Webhook failed with status ${response.status}:`, errorText);
+        if (response.ok) {
+            console.log('✅ Successfully delivered to Discord!');
         } else {
-            console.log('[SUCCESS] Webhook notification dispatched successfully.');
+            const errorData = await response.text();
+            console.error(`❌ Discord rejected request (${response.status}):`, errorData);
         }
     } catch (err) {
-        console.error('[ERROR] Network failure sending webhook:', err.message);
+        console.error('❌ Network Error:', err.message);
     }
 
     next();
 });
 
 app.get('/', (req, res) => {
-    res.send('Website loaded.');
+    res.send('Website Loaded');
 });
 
 app.listen(PORT, () => {
-    console.log(`Server listening on port ${PORT}`);
+    console.log(`Server listening on http://localhost:${PORT}`);
 });
