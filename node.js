@@ -4,7 +4,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 1. Ensure you paste your complete Webhook URL here
-const WEBHOOK_URL = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN';
+const WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1544668152410152991/QLHecycd6HmLCmmGJegdcdLNIWzNUKmN4-FfAfPhjuOu5HUil0BknWKK3iADDlcMkT_J';
 
 app.use(async (req, res, next) => {
     // 2. Prevent triggering on browser favicon requests
