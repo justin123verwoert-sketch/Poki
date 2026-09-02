@@ -5,7 +5,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Replace with your actual Webhook URL
-const WEBHOOK_URL = 'https://your-webhook-endpoint.com/api/notify';
+const WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1544668152410152991/QLHecycd6HmLCmmGJegdcdLNIWzNUKmN4-FfAfPhjuOu5HUil0BknWKK3iADDlcMkT_J';
 
 app.use((req, res, next) => {
     // Extract real client IP (supports Cloudflare and standard reverse proxies)
